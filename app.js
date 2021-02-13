@@ -10,6 +10,13 @@ app.use(express.json());
 //Middleware stand between the Req and Res
 // Its just Modify the Incoming Request
 
+//custome Middleware
+app.use((req, res, next) => {
+  console.log('This is a Middleware running');
+  req.requestedTime = new Date().toISOString();
+  next();
+});
+
 //implemnting Routes
 
 //what is "/api/v1/tours" ?
@@ -22,19 +29,18 @@ const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`)
 );
 
-//get Method to  get all the tours
+//Route Handlers for all the Tours
 
 const getAllTours = (req, res) => {
   res.status(200).json({
     status: 'success',
+    requstedat: req.requestedTime,
     results: tours.length,
     data: {
       tours,
     },
   });
 };
-
-app.get('/api/v1/tours', getAllTours);
 
 //getting a specific tour detail by id
 //How to respond to the parameters in the URL
@@ -61,9 +67,7 @@ const getTour = (req, res) => {
   });
 };
 
-app.get('/api/v1/tours/:id', getTour);
-
-//Post Method to crearte New tour
+//Post Method to create New tour
 
 const createTour = (req, res) => {
   console.log(req.body);
@@ -87,8 +91,6 @@ const createTour = (req, res) => {
   );
 };
 
-app.post('/api/v1/tours', createTour);
-
 //Handling Patch request
 
 const updateTour = (req, res) => {
@@ -107,10 +109,9 @@ const updateTour = (req, res) => {
   });
 };
 
-app.patch('/api/v1/tours/:id', updateTour);
-
 //Handle a delete request
-app.delete('/api/v1/tours/:id', (req, res) => {
+
+const deleteTour = (req, res) => {
   if (req.params.id * 1 > tours.length) {
     return res.status(404).json({
       status: 'fail',
@@ -122,7 +123,15 @@ app.delete('/api/v1/tours/:id', (req, res) => {
     status: 'success',
     data: null,
   });
-});
+};
+
+app.route('/api/v1/tours').get(getAllTours).post(createTour);
+
+app
+  .route('/api/v1/tours/:id')
+  .get(getTour)
+  .patch(updateTour)
+  .delete(deleteTour);
 
 //creating a server
 const port = 3000;
