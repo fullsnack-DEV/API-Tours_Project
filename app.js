@@ -2,11 +2,17 @@ const fs = require('fs');
 
 const express = require('express');
 
+const morgan = require('morgan');
+
 const app = express();
 //express is a function which upon calling will add bunch of methods to our app variable
 
 //Middlewares
+
+app.use(morgan('dev'));
+
 app.use(express.json());
+
 //Middleware stand between the Req and Res
 // Its just Modify the Incoming Request
 
@@ -125,6 +131,45 @@ const deleteTour = (req, res) => {
   });
 };
 
+//Users route handler
+
+const getalluser = (req, res) => {
+  res.status(500).json({
+    status: 'error',
+    message: 'Route is not implemented yet',
+  });
+};
+
+const getuser = (req, res) => {
+  res.status(500).json({
+    status: 'error',
+    message: 'Route is not implemented yet',
+  });
+};
+
+const deleteuser = (req, res) => {
+  res.status(500).json({
+    status: 'error',
+    message: 'Route is not implemented yet',
+  });
+};
+
+const updateuser = (req, res) => {
+  res.status(500).json({
+    status: 'error',
+    message: 'Route is not implemented yet',
+  });
+};
+
+const createuser = (req, res) => {
+  res.status(500).json({
+    status: 'error',
+    message: 'Route is not implemented yet',
+  });
+};
+
+//Routes
+
 app.route('/api/v1/tours').get(getAllTours).post(createTour);
 
 app
@@ -133,10 +178,16 @@ app
   .patch(updateTour)
   .delete(deleteTour);
 
+app.route('/api/v1/users').get(getalluser).post(createuser);
+
+app
+  .route('/api/v1/users/:id')
+  .get(getuser)
+  .patch(updateuser)
+  .delete(deleteuser);
+
 //creating a server
 const port = 3000;
 app.listen(port, () => {
   console.log(`The server is listnning at ${port}`);
 });
-
-//definning a Routes
