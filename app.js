@@ -10,8 +10,10 @@ const app = express();
 //express is a function which upon calling will add bunch of methods to our app variable
 
 //Middlewares
-
-app.use(morgan('dev'));
+console.log(process.env.NODE_ENV);
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
 
 app.use(express.json());
 
