@@ -17,6 +17,10 @@ if (process.env.NODE_ENV === 'development') {
 
 app.use(express.json());
 
+var num = 23;
+
+num = 5;
+
 //Middleware stand between the Req and Res
 // Its just Modify the Incoming Request
 
