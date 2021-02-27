@@ -6,12 +6,12 @@ const router = express.Router();
 
 //using params Middleware
 
-router.param('id', tourcontrollers.checkId);
+// router.param('id', tourcontrollers.checkId);
 
 router
   .route('/')
   .get(tourcontrollers.getAllTours)
-  .post(tourcontrollers.CheckBody, tourcontrollers.createTour);
+  .post(tourcontrollers.createTour);
 
 router
   .route('/:id')
