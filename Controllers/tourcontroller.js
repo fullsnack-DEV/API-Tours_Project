@@ -35,7 +35,7 @@ exports.getTour = async (req, res) => {
   try {
     //we will use find to find the one tour
     //Tour.findone({_id: req.params.id})
-    const tours = await Tour.findById(req.params.id);
+    const tour = await Tour.findById(req.params.id);
 
     res.status(200).json({
       status: 'Success',
@@ -75,20 +75,41 @@ exports.createTour = async (req, res) => {
 };
 //Handling Patch request
 
-exports.updateTour = (req, res) => {
-  res.status(200).json({
-    status: 'success',
-    data: {
-      tour: '<Updated tours>',
-    },
-  });
+exports.updateTour = async (req, res) => {
+  try {
+    const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        tour,
+      },
+    });
+  } catch (err) {
+    res.status(404).json({
+      status: 'failed',
+      message: err,
+    });
+  }
 };
 
 //Handle a delete request
 
-exports.deleteTour = (req, res) => {
-  res.status(204).json({
-    status: 'success',
-    data: null,
-  });
+exports.deleteTour = async (req, res) => {
+  const tour = await Tour.findByIdAndDelete(req.params.id);
+
+  try {
+    res.status(204).json({
+      status: 'success',
+      data: null,
+    });
+  } catch (err) {
+    res.status(404).json({
+      status: 'failed',
+      message: err,
+    });
+  }
 };
