@@ -1,41 +1,62 @@
 const fs = require('fs');
 
+//Tour is a mongoose model schema that we have written in a tourmodel file
 const Tour = require('./../models/tourmodels');
 //creating a Router specifically for Tour Route
 
-exports.getAllTours = (req, res) => {
-  res.status(200).json({
-    status: 'success',
-    requstedat: req.requestedTime,
-    // results: tours.length,
-    // data: {
-    //   tours,
-    // },
-  });
+//creating a CRUD operations using a mongoose schema
+
+exports.getAllTours = async (req, res) => {
+  //to get all the data we have to use find() mehtod on a document
+  //It will return as the promise and we have to mark the function as a async
+  try {
+    const tours = await Tour.find();
+
+    res.status(200).json({
+      status: 'success',
+      results: tours.length,
+      data: {
+        tours,
+      },
+    });
+  } catch (err) {
+    res.status(404).json({
+      status: 'fail',
+      message: err,
+    });
+  }
 };
 
 //getting a specific tour detail by id
 //How to respond to the parameters in the URL
 //We get a URL parameters via req object i.e req.params
 
-exports.getTour = (req, res) => {
-  const id = req.params.id * 1; //converting the id to a number
-  // const tour = tours.find((el) => el.id === id);
+exports.getTour = async (req, res) => {
+  try {
+    //we will use find to find the one tour
+    //Tour.findone({_id: req.params.id})
+    const tours = await Tour.findById(req.params.id);
 
-  // //handling the false parameter in the URL
-
-  // res.status(200).json({
-  //   status: 'Success',
-  //   data: {
-  //     tour,
-  //   },
-  // });
+    res.status(200).json({
+      status: 'Success',
+      data: {
+        tour,
+      },
+    });
+  } catch (err) {
+    res.status(404).json({
+      status: 'failed',
+      message: err,
+    });
+  }
 };
 
 //Post Method to create New tour
 
 exports.createTour = async (req, res) => {
   //creating a new Tour
+  //to create a new tour / new data in a documents we can make
+  //use of a .create(). It will return us a promise and and now we have to mark the function as a aysnc
   try {
     const newTour = await Tour.create(req.body);
 
