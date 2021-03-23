@@ -10,8 +10,26 @@ exports.getAllTours = async (req, res) => {
   //to get all the data we have to use find() mehtod on a document
   //It will return as the promise and we have to mark the function as a async
   try {
-    const tours = await Tour.find();
+    //we have to exclude all the functionality like paging sorting lmit etc.So we make
+    // copy of a req.query and query the database only with a valid query
 
+    //Building a Query
+    const queryobj = { ...req.query };
+
+    const excludedfields = ['page', 'limit', 'sort', 'fields'];
+
+    //now remove all the fields from the queryobj
+    excludedfields.forEach((el) => delete queryobj[el]);
+
+    console.log(req.query, queryobj);
+
+    const query = Tour.find(queryobj);
+
+    //awating a query
+
+    const tours = await query;
+
+    //sending response
     res.status(200).json({
       status: 'success',
       results: tours.length,
