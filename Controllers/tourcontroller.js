@@ -32,7 +32,7 @@ exports.getAllTours = async (req, res) => {
       /\b(gte|gt|lte|lt)\b/g,
       (match) => `$${match}`
     );
-    console.log(JSON.parse(querystring));
+
     //awating a query
 
     let query = Tour.find(JSON.parse(querystring));
@@ -44,7 +44,6 @@ exports.getAllTours = async (req, res) => {
     //Here we are Sorting the Api by the price, ratinavrge
     if (req.query.sort) {
       const Sortby = req.query.sort.split(',').join(' ');
-      console.log(Sortby);
 
       query = query.sort(Sortby);
     } else {
@@ -53,6 +52,28 @@ exports.getAllTours = async (req, res) => {
     }
 
     //Field Limiting
+    //field Limiting is a process where we limit some fields from API.
+
+    if (req.query.fields) {
+      const fields = req.query.fields.split(',').join(' ');
+
+      query = query.select(fields);
+    } else {
+      query = query.select('-__v');
+    }
+
+    //Pagination
+    const page = req.query.page * 1 || 1;
+    const limit = req.query.limit * 1 || 100;
+    const skip = (page - 1) * limit; //from StackOverflow
+
+    query = query.skip(skip).limit(limit);
+
+    if (req.query.page) {
+      const numoftours = await Tour.countDocuments();
+
+      if (skip >= numoftours) throw new Error('This page does not exists');
+    }
 
     //Executing query
     const tours = await query;
