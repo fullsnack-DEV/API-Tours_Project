@@ -6,8 +6,17 @@ const fs = require('fs');
 const Tour = require('./../models/tourmodels');
 //creating a Router specifically for Tour Route
 
-//creating a CRUD operations using a mongoose schema
+//Middleware
 
+exports.cheaproutes = (req, res, next) => {
+  req.query.limit = '5';
+  req.query.sort = '-ratingAverage,price';
+  req.query.fields = 'ratingAverage,name,price,summary,difficulty';
+
+  next();
+};
+
+//creating a CRUD operations using a mongoose schema
 exports.getAllTours = async (req, res) => {
   //to get all the data we have to use find() mehtod on a document
   //It will return as the promise and we have to mark the function as a async

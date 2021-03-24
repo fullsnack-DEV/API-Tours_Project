@@ -8,6 +8,12 @@ const router = express.Router();
 
 // router.param('id', tourcontrollers.checkId);
 
+//Adding the Top-5-Cheap Tours Midddleware
+
+router
+  .route('/top-5-cheap')
+  .get(tourcontrollers.cheaproutes, tourcontrollers.getAllTours);
+
 router
   .route('/')
   .get(tourcontrollers.getAllTours)
