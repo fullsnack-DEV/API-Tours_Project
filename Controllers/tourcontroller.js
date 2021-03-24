@@ -1,3 +1,5 @@
+const { match } = require('assert');
+const { json } = require('express');
 const fs = require('fs');
 
 //Tour is a mongoose model schema that we have written in a tourmodel file
@@ -22,11 +24,37 @@ exports.getAllTours = async (req, res) => {
     excludedfields.forEach((el) => delete queryobj[el]);
 
     console.log(req.query, queryobj);
+    //Advanced Filtering
 
-    const query = Tour.find(queryobj);
+    let querystring = JSON.stringify(queryobj);
 
+    querystring = querystring.replace(
+      /\b(gte|gt|lte|lt)\b/g,
+      (match) => `$${match}`
+    );
+    console.log(JSON.parse(querystring));
     //awating a query
 
+    let query = Tour.find(JSON.parse(querystring));
+
+    //Sorting
+
+    //Sort by a Avrerage
+
+    //Here we are Sorting the Api by the price, ratinavrge
+    if (req.query.sort) {
+      const Sortby = req.query.sort.split(',').join(' ');
+      console.log(Sortby);
+
+      query = query.sort(Sortby);
+    } else {
+      //by default sort by a created data i.e newest first
+      query = query.sort('-createdAt');
+    }
+
+    //Field Limiting
+
+    //Executing query
     const tours = await query;
 
     //sending response
