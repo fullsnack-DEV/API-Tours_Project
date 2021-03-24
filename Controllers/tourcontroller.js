@@ -1,6 +1,7 @@
 const { match } = require('assert');
 const { json } = require('express');
 const fs = require('fs');
+const { features } = require('process');
 
 //Tour is a mongoose model schema that we have written in a tourmodel file
 const Tour = require('./../models/tourmodels');
@@ -16,6 +17,68 @@ exports.cheaproutes = (req, res, next) => {
   next();
 };
 
+//Refactoring the code
+
+class APIfeatures {
+  constructor(query, querystring) {
+    this.query = query;
+    this.querystring = querystring;
+  }
+
+  filter() {
+    const queryobj = { ...this.querystring };
+
+    const excludedfields = ['page', 'limit', 'sort', 'fields'];
+
+    //now remove all the fields from the queryobj
+    excludedfields.forEach((el) => delete queryobj[el]);
+
+    //Advanced Filtering
+
+    let querystr = JSON.stringify(queryobj);
+
+    querystr = querystr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
+
+    this.query = this.query.find(JSON.parse(querystr));
+
+    return this;
+  }
+
+  sort() {
+    //Here we are Sorting the Api by the price, ratinavrge
+    if (this.querystring.sort) {
+      const Sortby = this.querystring.sort.split(',').join(' ');
+
+      this.query = this.query.sort(Sortby);
+    } else {
+      //by default sort by a created data i.e newest first
+      this.query = this.query.sort('-createdAt');
+    }
+
+    return this;
+  }
+
+  limitfield() {
+    if (this.querystring.fields) {
+      const fields = this.querystring.fields.split(',').join(' ');
+
+      this.query = this.query.select(fields);
+    } else {
+      this.query = this.query.select('-__v');
+    }
+    return this;
+  }
+
+  pagination() {
+    const page = this.querystring.page * 1 || 1;
+    const limit = this.querystring.limit * 1 || 100;
+    const skip = (page - 1) * limit; //from StackOverflow
+
+    this.query = this.query.skip(skip).limit(limit);
+    return this;
+  }
+}
+
 //creating a CRUD operations using a mongoose schema
 exports.getAllTours = async (req, res) => {
   //to get all the data we have to use find() mehtod on a document
@@ -25,67 +88,74 @@ exports.getAllTours = async (req, res) => {
     // copy of a req.query and query the database only with a valid query
 
     //Building a Query
-    const queryobj = { ...req.query };
+    // const queryobj = { ...req.query };
 
-    const excludedfields = ['page', 'limit', 'sort', 'fields'];
+    // const excludedfields = ['page', 'limit', 'sort', 'fields'];
 
-    //now remove all the fields from the queryobj
-    excludedfields.forEach((el) => delete queryobj[el]);
+    // //now remove all the fields from the queryobj
+    // excludedfields.forEach((el) => delete queryobj[el]);
 
-    console.log(req.query, queryobj);
-    //Advanced Filtering
+    // console.log(req.query, queryobj);
+    // //Advanced Filtering
 
-    let querystring = JSON.stringify(queryobj);
+    // let querystring = JSON.stringify(queryobj);
 
-    querystring = querystring.replace(
-      /\b(gte|gt|lte|lt)\b/g,
-      (match) => `$${match}`
-    );
+    // querystring = querystring.replace(
+    //   /\b(gte|gt|lte|lt)\b/g,
+    //   (match) => `$${match}`
+    // );
 
     //awating a query
 
-    let query = Tour.find(JSON.parse(querystring));
+    // let query = Tour.find(JSON.parse(querystring));
 
     //Sorting
 
     //Sort by a Avrerage
 
     //Here we are Sorting the Api by the price, ratinavrge
-    if (req.query.sort) {
-      const Sortby = req.query.sort.split(',').join(' ');
+    // if (req.query.sort) {
+    //   const Sortby = req.query.sort.split(',').join(' ');
 
-      query = query.sort(Sortby);
-    } else {
-      //by default sort by a created data i.e newest first
-      query = query.sort('-createdAt');
-    }
+    //   query = query.sort(Sortby);
+    // } else {
+    //   //by default sort by a created data i.e newest first
+    //   query = query.sort('-createdAt');
+    // }
 
     //Field Limiting
     //field Limiting is a process where we limit some fields from API.
 
-    if (req.query.fields) {
-      const fields = req.query.fields.split(',').join(' ');
+    // if (req.query.fields) {
+    //   const fields = req.query.fields.split(',').join(' ');
 
-      query = query.select(fields);
-    } else {
-      query = query.select('-__v');
-    }
+    //   query = query.select(fields);
+    // } else {
+    //   query = query.select('-__v');
+    // }
 
     //Pagination
-    const page = req.query.page * 1 || 1;
-    const limit = req.query.limit * 1 || 100;
-    const skip = (page - 1) * limit; //from StackOverflow
+    // const page = req.query.page * 1 || 1;
+    // const limit = req.query.limit * 1 || 100;
+    // const skip = (page - 1) * limit; //from StackOverflow
 
-    query = query.skip(skip).limit(limit);
+    // query = query.skip(skip).limit(limit);
 
-    if (req.query.page) {
-      const numoftours = await Tour.countDocuments();
+    // if (req.query.page) {
+    //   const numoftours = await Tour.countDocuments();
 
-      if (skip >= numoftours) throw new Error('This page does not exists');
-    }
+    //   if (skip >= numoftours) throw new Error('This page does not exists');
+    // }
 
     //Executing query
-    const tours = await query;
+
+    const feature = new APIfeatures(Tour.find(), req.query)
+      .filter()
+      .sort()
+      .limitfield()
+      .pagination();
+
+    const tours = await feature.query;
 
     //sending response
     res.status(200).json({
