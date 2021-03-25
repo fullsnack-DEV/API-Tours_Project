@@ -268,6 +268,7 @@ exports.getstats = async (req, res) => {
         $match: { ratingAverage: { $gte: 4.5 } },
       },
       {
+        //group stage
         $group: {
           _id: '$difficulty',
           numTours: { $sum: 1 },
@@ -278,6 +279,7 @@ exports.getstats = async (req, res) => {
         },
       },
       {
+        //sort stage
         $sort: {
           avgprice: 1,
         },
