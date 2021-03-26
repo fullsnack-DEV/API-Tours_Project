@@ -74,6 +74,7 @@ const tourschems = new mongoose.Schema(
 
 //Virtual properties
 //used a normal function
+
 tourschems.virtual('durationWeekdays').get(function () {
   return this.duration / 7;
 });
