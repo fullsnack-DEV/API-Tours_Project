@@ -33,6 +33,7 @@ const tourschems = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+
     price: {
       type: Number,
       required: [true, 'A tour must have a price'],
@@ -81,6 +82,7 @@ const tourschems = new mongoose.Schema(
 //building a model
 
 //Virtual properties
+
 //used a normal function
 
 tourschems.virtual('durationWeekdays').get(function () {
