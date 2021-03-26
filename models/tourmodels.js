@@ -103,12 +103,17 @@ tourschems.pre('save', function (next) {
   this.slug = slugify(this.name, { lower: true });
   next();
 });
-
+//Query Middleware
 tourschems.pre(/^find/, function (next) {
   this.find({ specialtour: { $ne: true } });
   next();
 });
+//Aggregation Middleware
+tourschems.pre('aggregate', function (next) {
+  this.pipeline().unshift({ $match: { specialtour: { $ne: true } } });
 
+  next();
+});
 const Tour = mongoose.model('Tour', tourschems);
 
 module.exports = Tour;
