@@ -65,6 +65,7 @@ const tourschems = new mongoose.Schema(
     startDates: [Date],
   },
   {
+    //To JSON
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
   }
