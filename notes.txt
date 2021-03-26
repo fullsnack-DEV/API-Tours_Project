@@ -1,0 +1,5 @@
+//Types of a middleware in MongoDB
+//  1> Document Middleware
+//  2> Query Middleware
+//  3> Aggregation Middleware
+//  4>Model Middleware
