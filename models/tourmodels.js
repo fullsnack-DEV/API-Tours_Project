@@ -76,7 +76,12 @@ const tourschems = new mongoose.Schema(
       default: Date.now(),
     },
     startDates: [Date],
+
+    specialtour: {
+      type: Boolean,
+    },
   },
+
   {
     //To JSON
     toJSON: { virtuals: true },
@@ -96,6 +101,11 @@ tourschems.virtual('durationWeekdays').get(function () {
 //Document Middleware   pre and post
 tourschems.pre('save', function (next) {
   this.slug = slugify(this.name, { lower: true });
+  next();
+});
+
+tourschems.pre(/^find/, function (next) {
+  this.find({ specialtour: { $ne: true } });
   next();
 });
 
