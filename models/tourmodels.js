@@ -13,6 +13,8 @@ const tourschems = new mongoose.Schema(
       minlength: [10, 'Tour must have a less or equal than 10 charaters'],
     },
 
+    //implemeting a Slug // sLUGIFY PACAJ
+
     slug: {
       type: String,
     },
@@ -53,7 +55,17 @@ const tourschems = new mongoose.Schema(
       required: [true, 'A tour must have a price'],
     },
 
-    priceDiscount: Number,
+    //Implementing Custom Validation
+
+    priceDiscount: {
+      type: Number,
+      validate: {
+        message: 'Discount Price should be below the regular price',
+        validator: function (val) {
+          return val < this.price;
+        },
+      },
+    },
     summary: {
       type: String,
       trim: true,
